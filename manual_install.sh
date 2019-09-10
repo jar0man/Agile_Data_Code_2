@@ -79,20 +79,19 @@ pip install -r requirements.txt
 # our Hadoop environment for Spark to run
 #
 if [ ! -d hadoop ]; then
-  echo "Installing hadoop 2.7.3 into $PROJECT_HOME/hadoop ..."
+  echo "Installing hadoop 2.7.4 into $PROJECT_HOME/hadoop ..."
 
   # May need to update this link... see http://hadoop.apache.org/releases.html
-  curl -Lko /tmp/hadoop-2.7.3.tar.gz http://apache.osuosl.org/hadoop/common/hadoop-2.7.3/hadoop-2.7.3.tar.gz
-
+  curl -Lko /tmp/hadoop-2.7.4.tar.gz https://archive.apache.org/dist/hadoop/core/hadoop-2.7.4/hadoop-2.7.4.tar.gz
   mkdir hadoop
-  tar -xvf /tmp/hadoop-2.7.3.tar.gz -C hadoop --strip-components=1
+  tar -xvf /tmp/hadoop-2.7.4.tar.gz -C hadoop --strip-components=1
   echo '# Hadoop environment setup' >> ~/.bash_profile
   export HADOOP_HOME=$PROJECT_HOME/hadoop
   echo 'export HADOOP_HOME=$PROJECT_HOME/hadoop' >> ~/.bash_profile
   export PATH=$PATH:$HADOOP_HOME/bin
   echo 'export PATH=$PATH:$HADOOP_HOME/bin' >> ~/.bash_profile
   export HADOOP_CLASSPATH=$(hadoop classpath)
-  echo 'export HADOOP_CLASSPATH=$(hadoop classpath)' >> ~/.bash_profile
+  #echo 'export HADOOP_CLASSPATH=$(hadoop classpath)' >> ~/.bash_profile
   export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
   echo 'export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop' >> ~/.bash_profile
 else
@@ -185,7 +184,7 @@ cp mongo-hadoop/build/libs/mongo-hadoop-*.jar lib/
 # pip install pymongo-spark # add sudo if needed
 cd mongo-hadoop/spark/src/main/python
 python setup.py install
-cd $PROJECT_HOME# to $PROJECT_HOME
+cd $PROJECT_HOME
 cp mongo-hadoop/spark/src/main/python/pymongo_spark.py lib/
 export PYTHONPATH=$PYTHONPATH:$PROJECT_HOME/lib
 echo 'export PYTHONPATH=$PYTHONPATH:$PROJECT_HOME/lib' >> ~/.bash_profile
@@ -239,9 +238,9 @@ echo "SPARK_CLASSPATH=$PROJECT_HOME/lib/snappy-java-1.1.2.6.jar" >> spark/conf/s
 # Install Kafka
 if [ -z `which kafka-server-start.sh` ] && [ ! -d kafka ]; then
   echo "Installing kafka 2.11-0.10.1.1 to $PROJECT_HOME/kafka ..."
-  curl -Lko /tmp/kafka_2.11-0.10.1.1.tgz http://www-us.apache.org/dist/kafka/0.10.1.1/kafka_2.11-0.10.1.1.tgz
+  curl -Lko /tmp/kafka_2.11-2.1.1.tgz http://apache.rediris.es/kafka/2.1.1/kafka_2.11-2.1.1.tgz
   mkdir kafka
-  tar -xvzf /tmp/kafka_2.11-0.10.1.1.tgz -C kafka --strip-components=1
+  tar -xvzf /tmp/kafka_2.11-2.1.1.tgz -C kafka --strip-components=1
 else
   echo "Skipping kafka, already installed..."
 fi
@@ -250,11 +249,13 @@ fi
 
 # Install Apache Incubating Airflow
 if [ -z `which airflow` ]; then
-  pip install airflow
+  export AIRFLOW_HOME=$PROJECT_HOME
+  echo "export AIRFLOW_HOME=$PROJECT_HOME" >> ~/.bash_profile  
   mkdir ~/airflow
   mkdir ~/airflow/dags
   mkdir ~/airflow/logs
   mkdir ~/airflow/plugins
+  pip install apache-airflow
   airflow initdb
   airflow webserver -D
 fi
